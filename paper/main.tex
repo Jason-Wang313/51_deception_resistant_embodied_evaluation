@@ -4,6 +4,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{hyperref}
+\raggedbottom
 \iclrfinalcopy
 
 \title{Deception-Resistant Embodied Evaluation for Robots}
@@ -14,7 +15,7 @@
 \maketitle
 
 \begin{abstract}
-Robot benchmarks can be gamed without any malicious intent. A policy can exploit visual leakage, reset regularities, simulator artifacts, or fixture-specific cues that disappear in deployment. Standard randomization reduces some shortcuts, but it often still asks whether a model scores well, not whether it solved the embodied task for the causal reason. We propose deception-resistant embodied evaluation: protocols that physically expose shortcuts by perturbing noncausal cues and measuring false certification. The recovery sweep for this paper produced 260 structured related-work rows. On 720 synthetic policy-case evaluations, a static score reaches 0.410 certification accuracy with 0.639 false-certification rate, randomized scoring reaches 0.610 and 0.116, and an embodied audit reaches 0.901 and 0.004 while reducing shortcut pass rate to 0.003. The paper is a diagnostic mechanism, not a universal benchmark.
+Robot benchmarks can be gamed without any malicious intent. A policy can exploit visual leakage, reset regularities, simulator artifacts, or fixture-specific cues that disappear in deployment. Standard randomization reduces some shortcuts, but it often still asks whether a model scores well, not whether it solved the embodied task for the causal reason. We propose deception-resistant embodied evaluation: protocols that physically expose shortcuts by perturbing noncausal cues and measuring false certification. On 720 synthetic policy-case evaluations, a static score reaches 0.410 certification accuracy with 0.639 false-certification rate, randomized scoring reaches 0.610 and 0.116, and an embodied audit reaches 0.901 and 0.004 while reducing shortcut pass rate to 0.003. V2 hardening shows the boundary condition: if probe-shortcut coupling falls to 0.25, false certification rises to 0.105, and with no effective coupling it rises to 0.238. The paper is a diagnostic mechanism, not a universal benchmark.
 \end{abstract}
 
 \section{Motivation}
@@ -43,6 +44,9 @@ where the intervention preserves task physics while disrupting the suspected sho
   \Pr[\mathrm{pass}_{eval}=1 \land \mathrm{deploy}=0].
 \]
 
+\paragraph{V2 hardening note.}
+Submission-hardening version: v2. Decision: workshop-only. The embodied-audit result is meaningful only when the physical probe actually couples to the shortcut channel. The v2 stress test weakens that coupling and shows false certification returning as shortcut pass rates rise.
+
 \section{Diagnostic Benchmark}
 
 We generated 720 policy-case evaluations across object relocation, tool use, mobile navigation, peg insertion, handover, and deformable sorting. Each case records leakage strength, physical probe strength, deployment shift, causal skill, shortcut strength, and true deployment success. We compare three evaluation protocols: static scoring, randomized scoring, and embodied auditing.
@@ -62,6 +66,14 @@ Embodied audit & 0.901 & 0.004 & 0.003 & 0.494 \\
 \label{tab:diagnostic}
 \end{table}
 
+\begin{table}[t]
+\centering
+\small
+\input{v2_probe_coverage_table.tex}
+\caption{V2 probe-coverage stress. Probe coupling scales how strongly the audit intervention breaks the shortcut channel. At low coupling, shortcut policies begin passing again.}
+\label{tab:v2-probe}
+\end{table}
+
 \begin{figure}[t]
 \centering
 \IfFileExists{figures/deception_resistant_metrics.png}{\includegraphics[width=0.82\linewidth]{figures/deception_resistant_metrics.png}}{\fbox{\parbox{0.78\linewidth}{Metric figure unavailable.}}}
@@ -71,9 +83,11 @@ Embodied audit & 0.901 & 0.004 & 0.003 & 0.494 \\
 
 Table~\ref{tab:diagnostic} and Figure~\ref{fig:metrics} show the intended distinction. Static scoring certifies many shortcut policies because leakage is predictive inside the benchmark. Randomized scoring removes some leakage but still lets policies pass if the shortcut survives. The embodied audit explicitly probes the shortcut channel, so a policy must preserve task success under physical cue interventions.
 
+Table~\ref{tab:v2-probe} gives the hardening stress. With full probe coupling, the embodied audit has 0.004 false certification. At 0.25 coupling, false certification rises to 0.105 and shortcut pass rate rises to 0.114. With no effective coupling, false certification reaches 0.238 and shortcut pass rate reaches 0.264. The mechanism therefore depends on calibrated shortcut hypotheses and probes that physically disrupt the relevant cue, not merely on adding an audit stage.
+
 \section{Limitations}
 
-The benchmark is synthetic and the shortcut families are manually specified. Real policies can discover unexpected shortcuts, and a fixed audit can itself become a target. The paper therefore argues for a reporting contract rather than a final benchmark: every embodied evaluation should identify suspected shortcut channels, physically perturb them, and report false certification.
+The benchmark is synthetic and the shortcut families are manually specified. Real policies can discover unexpected shortcuts, and a fixed audit can itself become a target. The v2 stress shows that weak or misdirected probes can restore false certification. The paper therefore argues for a reporting contract rather than a final benchmark: every embodied evaluation should identify suspected shortcut channels, physically perturb them, verify probe coverage, and report false certification.
 
 \section{Conclusion}
 
