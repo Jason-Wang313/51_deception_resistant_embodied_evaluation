@@ -1,0 +1,54 @@
+{
+  "rows": [
+    {
+      "probe_coupling": 1.0,
+      "certification_accuracy": 0.9013888888888889,
+      "false_certification_rate": 0.004219409282700422,
+      "false_rejection_rate": 0.2804878048780488,
+      "shortcut_pass_rate": 0.002777777777777778,
+      "robust_pass_rate": 0.49444444444444446,
+      "false_certifications": 2.0,
+      "false_rejections": 69.0
+    },
+    {
+      "probe_coupling": 0.75,
+      "certification_accuracy": 0.9236111111111112,
+      "false_certification_rate": 0.012658227848101266,
+      "false_rejection_rate": 0.1991869918699187,
+      "shortcut_pass_rate": 0.019444444444444445,
+      "robust_pass_rate": 0.5444444444444444,
+      "false_certifications": 6.0,
+      "false_rejections": 49.0
+    },
+    {
+      "probe_coupling": 0.5,
+      "certification_accuracy": 0.9388888888888889,
+      "false_certification_rate": 0.027426160337552744,
+      "false_rejection_rate": 0.12601626016260162,
+      "shortcut_pass_rate": 0.03888888888888889,
+      "robust_pass_rate": 0.5944444444444444,
+      "false_certifications": 13.0,
+      "false_rejections": 31.0
+    },
+    {
+      "probe_coupling": 0.25,
+      "certification_accuracy": 0.9013888888888889,
+      "false_certification_rate": 0.10548523206751055,
+      "false_rejection_rate": 0.08536585365853659,
+      "shortcut_pass_rate": 0.11388888888888889,
+      "robust_pass_rate": 0.65,
+      "false_certifications": 50.0,
+      "false_rejections": 21.0
+    },
+    {
+      "probe_coupling": 0.0,
+      "certification_accuracy": 0.8194444444444444,
+      "false_certification_rate": 0.23839662447257384,
+      "false_rejection_rate": 0.06910569105691057,
+      "shortcut_pass_rate": 0.2638888888888889,
+      "robust_pass_rate": 0.6861111111111111,
+      "false_certifications": 113.0,
+      "false_rejections": 17.0
+    }
+  ]
+}

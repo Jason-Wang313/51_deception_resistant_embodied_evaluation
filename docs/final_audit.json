@@ -1,0 +1,21 @@
+{
+  "paper": 51,
+  "hardening_version": "v2",
+  "decision": "workshop-only",
+  "canonical_pdf": "C:/Users/wangz/Downloads/51.pdf",
+  "key_result": "Embodied audit false certification rises when probe-shortcut coupling is weak, reaching 0.105 at 0.25 coupling and 0.238 with no effective coupling.",
+  "probe_stress": {
+    "coupling_1_00": {
+      "false_certification_rate": 0.004219409282700422,
+      "shortcut_pass_rate": 0.002777777777777778
+    },
+    "coupling_0_25": {
+      "false_certification_rate": 0.10548523206751055,
+      "shortcut_pass_rate": 0.11388888888888889
+    },
+    "coupling_0_00": {
+      "false_certification_rate": 0.23839662447257384,
+      "shortcut_pass_rate": 0.2638888888888889
+    }
+  }
+}
