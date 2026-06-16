@@ -1,0 +1,22 @@
+{
+  "status": "complete",
+  "expected_condition_rows": 302400,
+  "actual_condition_rows": 302400,
+  "represented_policy_evaluations": 23030784000,
+  "represented_frame_decisions": 2210955264000,
+  "evals_per_condition_row": 76160,
+  "frames_per_condition_row": 7311360,
+  "figures": [
+    "protocol_false_cert_utility.pdf",
+    "coverage_stress_curve.pdf",
+    "shortcut_pass_tradeoff.pdf",
+    "task_utility.pdf"
+  ],
+  "tables": [
+    "table_scale.tex",
+    "table_main_performance.tex",
+    "table_coverage_stress.tex",
+    "table_shortcut_boundary.tex",
+    "table_task_summary.tex"
+  ]
+}

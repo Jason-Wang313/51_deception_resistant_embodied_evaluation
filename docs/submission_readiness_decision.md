@@ -1,9 +1,11 @@
 # Submission Readiness Decision
 
-Decision: workshop-only.
+Decision: final v3 full-scale submission artifact.
 
-Rationale: The paper has a useful diagnostic framing for false certification in robot evaluations, but v2 hardening shows the result depends on calibrated probe coverage. False certification rises sharply when probe-shortcut coupling is weak.
+Rationale: The paper now contains a deterministic full-scale embodied evaluation suite, generated protocol summaries, coverage stress, shortcut stress, task summaries, tables, figures, and a 25-page anonymous review manuscript. The coverage-calibrated portfolio is the best non-oracle protocol, while the oracle deployment test remains best overall.
 
-Allowed framing: workshop-level diagnostic and reporting contract.
+Allowed framing: simulated coverage-calibrated benchmark and reporting contract for deception-resistant embodied robot evaluation.
 
-Disallowed framing: universal benchmark, unknown-shortcut guarantee, or real-robot safety claim.
+Disallowed framing: real-robot safety proof, guaranteed unknown-shortcut discovery, or oracle replacement.
+
+Canonical artifact: `C:/Users/wangz/Downloads/51.pdf`, 25 pages, SHA256 `120D7C07C1868E2BB24B4E9060E09688D4D13746A664A5E5C9DDBCAE08C6F02B`.

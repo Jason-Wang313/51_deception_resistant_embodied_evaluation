@@ -1,21 +1,44 @@
 {
   "paper": 51,
-  "hardening_version": "v2",
-  "decision": "workshop-only",
+  "hardening_version": "v3_full_scale",
+  "decision": "final_v3_full_scale_submission_artifact",
   "canonical_pdf": "C:/Users/wangz/Downloads/51.pdf",
-  "key_result": "Embodied audit false certification rises when probe-shortcut coupling is weak, reaching 0.105 at 0.25 coupling and 0.238 with no effective coupling.",
-  "probe_stress": {
-    "coupling_1_00": {
-      "false_certification_rate": 0.004219409282700422,
-      "shortcut_pass_rate": 0.002777777777777778
+  "pages": 25,
+  "file_size_bytes": 276127,
+  "sha256": "120D7C07C1868E2BB24B4E9060E09688D4D13746A664A5E5C9DDBCAE08C6F02B",
+  "visual_qa_pages": [1, 6, 8, 21, 25],
+  "experiment": {
+    "condition_rows": 302400,
+    "represented_policy_evaluations": 23030784000,
+    "represented_frame_decisions": 2210955264000,
+    "protocols": 7,
+    "task_families": 12,
+    "robot_embodiments": 5,
+    "shortcut_channels": 6,
+    "deployment_shifts": 5,
+    "coverage_regimes": 4,
+    "policy_families": 6
+  },
+  "key_result": {
+    "coverage_calibrated_portfolio": {
+      "certification_accuracy": 0.932548,
+      "false_certification": 0.031508,
+      "false_rejection": 0.035944,
+      "shortcut_pass": 0.003056,
+      "robust_pass": 0.076996,
+      "coverage_recall": 0.680137,
+      "probe_cost": 0.289721,
+      "utility": 0.775046
     },
-    "coupling_0_25": {
-      "false_certification_rate": 0.10548523206751055,
-      "shortcut_pass_rate": 0.11388888888888889
-    },
-    "coupling_0_00": {
-      "false_certification_rate": 0.23839662447257384,
-      "shortcut_pass_rate": 0.2638888888888889
+    "oracle_deployment_test": {
+      "certification_accuracy": 0.941558,
+      "false_certification": 0.031818,
+      "false_rejection": 0.026624,
+      "shortcut_pass": 0.002533,
+      "robust_pass": 0.085007,
+      "coverage_recall": 0.930876,
+      "probe_cost": 0.1,
+      "utility": 0.885563
     }
   }
 }

@@ -1,0 +1,348 @@
+{
+  "tasks": [
+    {
+      "code": "reloc",
+      "label": "Object relocation",
+      "difficulty": 0.42,
+      "leakage": 0.58,
+      "probeable": 0.66,
+      "physics": 0.54
+    },
+    {
+      "code": "tool",
+      "label": "Tool use",
+      "difficulty": 0.58,
+      "leakage": 0.5,
+      "probeable": 0.6,
+      "physics": 0.7
+    },
+    {
+      "code": "nav",
+      "label": "Mobile navigation",
+      "difficulty": 0.46,
+      "leakage": 0.72,
+      "probeable": 0.52,
+      "physics": 0.48
+    },
+    {
+      "code": "peg",
+      "label": "Peg insertion",
+      "difficulty": 0.72,
+      "leakage": 0.44,
+      "probeable": 0.72,
+      "physics": 0.84
+    },
+    {
+      "code": "handover",
+      "label": "Human handover",
+      "difficulty": 0.62,
+      "leakage": 0.46,
+      "probeable": 0.58,
+      "physics": 0.66
+    },
+    {
+      "code": "deform",
+      "label": "Deformable sorting",
+      "difficulty": 0.68,
+      "leakage": 0.54,
+      "probeable": 0.62,
+      "physics": 0.76
+    },
+    {
+      "code": "drawer",
+      "label": "Drawer opening",
+      "difficulty": 0.56,
+      "leakage": 0.48,
+      "probeable": 0.7,
+      "physics": 0.72
+    },
+    {
+      "code": "cable",
+      "label": "Cable routing",
+      "difficulty": 0.74,
+      "leakage": 0.52,
+      "probeable": 0.55,
+      "physics": 0.82
+    },
+    {
+      "code": "liquid",
+      "label": "Liquid transfer",
+      "difficulty": 0.78,
+      "leakage": 0.4,
+      "probeable": 0.5,
+      "physics": 0.88
+    },
+    {
+      "code": "bin",
+      "label": "Bin picking",
+      "difficulty": 0.52,
+      "leakage": 0.7,
+      "probeable": 0.64,
+      "physics": 0.58
+    },
+    {
+      "code": "inspect",
+      "label": "Remote inspection",
+      "difficulty": 0.38,
+      "leakage": 0.76,
+      "probeable": 0.46,
+      "physics": 0.36
+    },
+    {
+      "code": "mobileman",
+      "label": "Mobile manipulation",
+      "difficulty": 0.66,
+      "leakage": 0.62,
+      "probeable": 0.56,
+      "physics": 0.72
+    }
+  ],
+  "robots": [
+    {
+      "code": "table",
+      "label": "Tabletop manipulator",
+      "sensing": 0.66,
+      "probe": 0.72,
+      "variation": 0.4,
+      "sim_gap": 0.34
+    },
+    {
+      "code": "mobile",
+      "label": "Mobile manipulator",
+      "sensing": 0.56,
+      "probe": 0.58,
+      "variation": 0.62,
+      "sim_gap": 0.54
+    },
+    {
+      "code": "aerial",
+      "label": "Aerial robot",
+      "sensing": 0.52,
+      "probe": 0.5,
+      "variation": 0.7,
+      "sim_gap": 0.62
+    },
+    {
+      "code": "hand",
+      "label": "Tactile dexterous hand",
+      "sensing": 0.78,
+      "probe": 0.68,
+      "variation": 0.54,
+      "sim_gap": 0.42
+    },
+    {
+      "code": "service",
+      "label": "Assistive service robot",
+      "sensing": 0.6,
+      "probe": 0.56,
+      "variation": 0.58,
+      "sim_gap": 0.5
+    }
+  ],
+  "shortcuts": [
+    {
+      "code": "vis",
+      "label": "Visual marker leakage",
+      "visibility": 0.88,
+      "physical": 0.28,
+      "hidden": 0.24,
+      "disrupt": 0.7
+    },
+    {
+      "code": "reset",
+      "label": "Reset pose regularity",
+      "visibility": 0.34,
+      "physical": 0.42,
+      "hidden": 0.62,
+      "disrupt": 0.58
+    },
+    {
+      "code": "sim",
+      "label": "Simulator/render artifact",
+      "visibility": 0.72,
+      "physical": 0.18,
+      "hidden": 0.52,
+      "disrupt": 0.46
+    },
+    {
+      "code": "fixture",
+      "label": "Fixture compliance cue",
+      "visibility": 0.42,
+      "physical": 0.78,
+      "hidden": 0.58,
+      "disrupt": 0.68
+    },
+    {
+      "code": "timing",
+      "label": "Operator timing cue",
+      "visibility": 0.38,
+      "physical": 0.36,
+      "hidden": 0.7,
+      "disrupt": 0.52
+    },
+    {
+      "code": "forceproxy",
+      "label": "Proprioceptive/force proxy",
+      "visibility": 0.3,
+      "physical": 0.84,
+      "hidden": 0.68,
+      "disrupt": 0.6
+    }
+  ],
+  "shifts": [
+    {
+      "code": "iid",
+      "label": "In-distribution",
+      "appearance": 0.0,
+      "dynamics": 0.0,
+      "reset": 0.0,
+      "compound": 0.0
+    },
+    {
+      "code": "appear",
+      "label": "Appearance shift",
+      "appearance": 0.34,
+      "dynamics": 0.04,
+      "reset": 0.04,
+      "compound": 0.1
+    },
+    {
+      "code": "dyn",
+      "label": "Dynamics shift",
+      "appearance": 0.06,
+      "dynamics": 0.36,
+      "reset": 0.08,
+      "compound": 0.16
+    },
+    {
+      "code": "resetshift",
+      "label": "Reset/fixture shift",
+      "appearance": 0.08,
+      "dynamics": 0.12,
+      "reset": 0.34,
+      "compound": 0.18
+    },
+    {
+      "code": "compound",
+      "label": "Compounded shift",
+      "appearance": 0.28,
+      "dynamics": 0.32,
+      "reset": 0.3,
+      "compound": 0.38
+    }
+  ],
+  "coverage": [
+    {
+      "code": "aligned",
+      "label": "Aligned high coverage",
+      "base": 0.92,
+      "misdirect": 0.02,
+      "unknown": 0.06,
+      "noise": 0.08
+    },
+    {
+      "code": "partial",
+      "label": "Partial coverage",
+      "base": 0.58,
+      "misdirect": 0.12,
+      "unknown": 0.18,
+      "noise": 0.18
+    },
+    {
+      "code": "misdir",
+      "label": "Misdirected coverage",
+      "base": 0.36,
+      "misdirect": 0.42,
+      "unknown": 0.28,
+      "noise": 0.26
+    },
+    {
+      "code": "unknown",
+      "label": "Unknown low coverage",
+      "base": 0.24,
+      "misdirect": 0.32,
+      "unknown": 0.48,
+      "noise": 0.34
+    }
+  ],
+  "policy_families": [
+    {
+      "code": "causal",
+      "label": "Causal robust policy",
+      "causal": 0.88,
+      "shortcut": 0.1,
+      "adaptive": 0.2,
+      "evasion": 0.02
+    },
+    {
+      "code": "viscut",
+      "label": "Visual shortcut policy",
+      "causal": 0.36,
+      "shortcut": 0.84,
+      "adaptive": 0.14,
+      "evasion": 0.1
+    },
+    {
+      "code": "resetcut",
+      "label": "Reset shortcut policy",
+      "causal": 0.34,
+      "shortcut": 0.8,
+      "adaptive": 0.18,
+      "evasion": 0.12
+    },
+    {
+      "code": "dyncut",
+      "label": "Dynamics shortcut policy",
+      "causal": 0.38,
+      "shortcut": 0.76,
+      "adaptive": 0.16,
+      "evasion": 0.16
+    },
+    {
+      "code": "mixed",
+      "label": "Mixed causal/shortcut policy",
+      "causal": 0.62,
+      "shortcut": 0.48,
+      "adaptive": 0.24,
+      "evasion": 0.08
+    },
+    {
+      "code": "advc",
+      "label": "Adversarial adaptive shortcut",
+      "causal": 0.42,
+      "shortcut": 0.82,
+      "adaptive": 0.52,
+      "evasion": 0.42
+    }
+  ],
+  "protocols": [
+    {
+      "code": "static",
+      "label": "Static score"
+    },
+    {
+      "code": "rand",
+      "label": "Appearance randomization"
+    },
+    {
+      "code": "single",
+      "label": "Single embodied probe"
+    },
+    {
+      "code": "portfolio",
+      "label": "Coverage-unaware portfolio"
+    },
+    {
+      "code": "calib",
+      "label": "Coverage-calibrated portfolio"
+    },
+    {
+      "code": "search",
+      "label": "Adaptive adversarial probe search"
+    },
+    {
+      "code": "oracle",
+      "label": "Oracle deployment test"
+    }
+  ]
+}
