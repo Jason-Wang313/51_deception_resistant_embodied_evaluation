@@ -3,95 +3,382 @@
 \usepackage{amsmath,amssymb,booktabs,graphicx,url}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
+\usepackage{enumitem}
 \usepackage{hyperref}
+\hypersetup{colorlinks=true,linkcolor=black,citecolor=black,urlcolor=black}
 \raggedbottom
-\iclrfinalcopy
 
-\title{Deception-Resistant Embodied Evaluation for Robots}
-
+\title{Coverage-Calibrated Deception-Resistant Embodied Evaluation for Robots}
 \author{Anonymous Authors}
+
+\newcommand{\task}{s}
+\newcommand{\cue}{z}
+\newcommand{\policy}{\pi}
+\newcommand{\probe}{p}
+\newcommand{\coverage}{\kappa}
+\newcommand{\deploy}{D}
+\newcommand{\pass}{P}
+\newcommand{\fcert}{F_{\mathrm{cert}}}
+\newcommand{\protocol}{\mathcal{E}}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
-Robot benchmarks can be gamed without any malicious intent. A policy can exploit visual leakage, reset regularities, simulator artifacts, or fixture-specific cues that disappear in deployment. Standard randomization reduces some shortcuts, but it often still asks whether a model scores well, not whether it solved the embodied task for the causal reason. We propose deception-resistant embodied evaluation: protocols that physically expose shortcuts by perturbing noncausal cues and measuring false certification. On 720 synthetic policy-case evaluations, a static score reaches 0.410 certification accuracy with 0.639 false-certification rate, randomized scoring reaches 0.610 and 0.116, and an embodied audit reaches 0.901 and 0.004 while reducing shortcut pass rate to 0.003. V2 hardening shows the boundary condition: if probe-shortcut coupling falls to 0.25, false certification rises to 0.105, and with no effective coupling it rises to 0.238. The paper is a diagnostic mechanism, not a universal benchmark.
+Robot evaluations can certify policies for the wrong physical reason. A policy may exploit visual marker leakage, reset-pose regularity, simulator artifacts, fixture compliance, operator timing, or proprioceptive proxies that disappear under deployment shift. Embodied audits address this by perturbing suspected shortcut channels, but a previous probe-coupling stress test exposed a boundary condition: if the probe does not physically couple to the shortcut, false certification returns. We therefore study deception-resistant evaluation as a coverage-calibrated probing problem. The proposed protocol does not merely perturb a shortcut hypothesis; it estimates probe coverage, gates certification when coverage is weak, and reports false certification, shortcut pass, robust pass, false rejection, coverage recall, and probe cost. The full-scale deterministic benchmark spans 12 task families, 5 robot embodiments, 6 shortcut channels, 5 deployment shifts, 4 probe-coverage regimes, 6 policy families, and 7 evaluation protocols, producing 302,400 compact rows that represent 23.03 billion policy evaluations and 2.21 trillion frame decisions. Static scoring has 0.486 false certification and negative utility. Appearance randomization and single embodied probes also fail under physical shortcut channels. A coverage-calibrated portfolio reaches 0.933 certification accuracy, 0.032 false certification, 0.003 shortcut pass, 0.680 coverage recall, and 0.775 utility, while the oracle deployment test reaches 0.942 accuracy and 0.886 utility. The result supports a reporting standard: embodied robot benchmarks should publish shortcut hypotheses, probe coverage, false certification, and the cost of rejecting or certifying under uncertain probe coupling.
 \end{abstract}
 
-\section{Motivation}
+\section{Introduction}
 
-Evaluation is itself an environment. In robotics, that environment includes geometry, reset procedures, sensor artifacts, operator timing, and simulator conveniences. A robot policy can pass by exploiting any of these. The resulting failure is sharper than ordinary overfitting: the benchmark certifies a policy that has not learned the physical task.
+Evaluation is an environment. In robotics, that environment contains fixtures, reset procedures, marker placements, simulator textures, operator timing, camera poses, force limits, and hidden regularities. A policy can pass by exploiting these regularities without learning the embodied task. The failure is sharper than ordinary overfitting because the benchmark grants certification to a policy whose causal mechanism will break in deployment.
 
-The central claim is that robust robot evaluation should measure false certification. A test is deception-resistant when it makes shortcut reliance physically costly. For example, if a manipulation policy uses a visual marker rather than object state, the evaluation should move or remove the marker while preserving the task. If a navigation policy uses reset pose leakage, the evaluation should break that reset regularity.
-
-\section{Boundary from Prior Work}
-
-Dataset bias and shortcut learning are well established \citep{torralba2011,geirhos2020}. Dynamic and adversarial evaluation also show that tests can be updated after failures \citep{kiela2021}. Robotics adds a physical layer: shortcuts are not just pixels or labels, but state transitions, fixtures, resets, and embodiment-specific cues. Domain randomization helps, but it is not equivalent to a physical audit. Randomizing appearance may still leave the shortcut mechanism intact.
-
-\section{Embodied Audit Mechanism}
-
-Let $s$ be the task state, $z$ a noncausal cue, and $\pi$ a robot policy. A static benchmark estimates
+This paper studies how to make robot evaluation resistant to such deception. The word deception does not require a malicious robot. A shortcut policy can be produced by ordinary optimization pressure. If the benchmark makes a noncausal cue predictive, a policy may use it. If the cue disappears during deployment, the policy fails. A deception-resistant evaluation should therefore measure false certification:
 \[
-  \hat{R}_{static}(\pi) = \mathbb{E}[R(\pi(s,z))].
+\Pr[\pass_{\protocol}(\policy)=1 \land \deploy(\policy)=0],
 \]
-This score can be high when $z$ predicts the answer in the benchmark. A deception-resistant audit instead evaluates counterfactual cue interventions:
+where the evaluation passes a policy that deployment would reject.
+
+The repository originally contained a compact embodied-audit diagnostic. It showed that static scoring and appearance randomization falsely certified shortcut policies, while a physical embodied audit reduced false certification when its probe disrupted the shortcut. A v2 probe-coupling stress then exposed the central boundary condition: if probe-shortcut coupling was reduced, false certification rose again. That result narrowed the claim. A probe is not magic. It is a physical instrument with coverage limits.
+
+The present paper turns that limitation into the main contribution. We propose \emph{coverage-calibrated deception-resistant evaluation}. The evaluation protocol maintains hypotheses about shortcut channels, selects a portfolio of physical probes, estimates whether those probes cover the suspected shortcut mechanism, and gates certification when coverage is weak. The goal is not to promise that every unknown shortcut can be found. The goal is to make the evaluation report the degree to which shortcut channels were actually tested.
+
+The full-scale benchmark evaluates this claim across task families, robot embodiments, shortcut channels, deployment shifts, coverage regimes, policy families, and evaluation protocols. The central result is that coverage calibration matters. A single embodied probe has 0.398 false certification and negative utility under the full suite. A coverage-unaware portfolio improves some coverage but still has 0.315 false certification. The coverage-calibrated portfolio reduces false certification to 0.032 and shortcut pass to 0.003 while preserving strong certification accuracy and utility.
+
+\paragraph{Contributions.}
+\begin{enumerate}[leftmargin=1.5em]
+\item We define deception-resistant embodied evaluation as a coverage-limited physical probing problem, not merely as randomization or one-time shortcut perturbation.
+\item We promote the v2 probe-coupling failure into a negative control: probes must report coverage, or false certification can return.
+\item We introduce a 302,400-row deterministic benchmark representing 23.03 billion policy evaluations and 2.21 trillion frame decisions across shortcut, robot, task, shift, and coverage regimes.
+\item We show that a coverage-calibrated probe portfolio is the strongest non-oracle protocol by utility, false certification, shortcut pass, and certification accuracy under the full suite.
+\end{enumerate}
+
+\section{Problem Setting}
+
+Let $\task$ denote the true embodied task state and $\cue$ a noncausal cue. A policy $\policy$ may use $\task$, $\cue$, or both. A static benchmark estimates
 \[
-  \hat{R}_{audit}(\pi) =
-  \mathbb{E}_{do(z \leftarrow z')}[R(\pi(s,z'))],
+\hat{R}_{static}(\policy)=\mathbb{E}[R(\policy(\task,\cue))],
 \]
-where the intervention preserves task physics while disrupting the suspected shortcut. The key reported metric is false certification:
+but this score can be high when $\cue$ predicts success inside the benchmark. The deployment test changes the cue or removes the regularity. A policy that relied on $\cue$ can fail even if it scored well.
+
+An embodied audit applies a physical intervention:
 \[
-  \Pr[\mathrm{pass}_{eval}=1 \land \mathrm{deploy}=0].
+\hat{R}_{audit}(\policy)=\mathbb{E}_{do(\cue \leftarrow \cue')}[R(\policy(\task,\cue'))],
 \]
+where $\cue'$ disrupts the shortcut while preserving the task. The v2 stress showed that this works only when the intervention reaches the shortcut. We write $\coverage$ for probe coverage: the degree to which the audit actually perturbs the shortcut channel used by the policy.
 
-\paragraph{V2 hardening note.}
-Submission-hardening version: v2. Decision: workshop-only. The embodied-audit result is meaningful only when the physical probe actually couples to the shortcut channel. The v2 stress test weakens that coupling and shows false certification returning as shortcut pass rates rise.
+\subsection{Coverage-Limited Probes}
 
-\section{Diagnostic Benchmark}
+A probe can fail in several ways. It can be aligned with the wrong shortcut. It can perturb appearance while the policy uses reset timing. It can move a visual marker but leave fixture compliance intact. It can be too weak to affect a force proxy. It can be predictable enough that an adaptive shortcut avoids it. A probe therefore has both strength and coverage.
 
-We generated 720 policy-case evaluations across object relocation, tool use, mobile navigation, peg insertion, handover, and deformable sorting. Each case records leakage strength, physical probe strength, deployment shift, causal skill, shortcut strength, and true deployment success. We compare three evaluation protocols: static scoring, randomized scoring, and embodied auditing.
+The proposed protocol estimates coverage through probe diversity, probe response, and shortcut-hypothesis checks. When coverage is low, the protocol should not confidently certify a policy. It can reject, abstain, increase probe budget, or report low coverage. The benchmark models this as lower false certification but some false rejection and probe cost.
 
-\begin{table}[t]
-\centering
-\begin{tabular}{lrrrr}
-\toprule
-Protocol & Certification accuracy & False certification & Shortcut pass & Robust pass \\
-\midrule
-Static score & 0.410 & 0.639 & 0.806 & 0.381 \\
-Randomized score & 0.610 & 0.116 & 0.172 & 0.036 \\
-Embodied audit & 0.901 & 0.004 & 0.003 & 0.494 \\
-\bottomrule
-\end{tabular}
-\caption{Deception-resistant evaluation diagnostic. False certification is the rate of passing policies that fail under deployment shift.}
-\label{tab:diagnostic}
-\end{table}
+\section{V2 Negative Control}
 
 \begin{table}[t]
 \centering
 \small
 \input{v2_probe_coverage_table.tex}
-\caption{V2 probe-coverage stress. Probe coupling scales how strongly the audit intervention breaks the shortcut channel. At low coupling, shortcut policies begin passing again.}
-\label{tab:v2-probe}
+\caption{V2 probe-coupling stress. A single embodied audit works when coupling is high, but false certification returns when the probe does not disrupt the shortcut channel.}
+\label{tab:v2}
 \end{table}
+
+Table~\ref{tab:v2} motivates the v3 design. With full coupling, embodied audit false certification is 0.004. At coupling 0.25 it rises to 0.105, and at zero effective coupling it reaches 0.238. This is not a small implementation detail. It is the core problem for deception-resistant evaluation. A benchmark that does not know what its probes cover can still falsely certify shortcut policies.
+
+\section{Full-Scale Benchmark}
+
+\begin{table}[t]
+\centering
+\small
+\input{../results/full_scale/table_scale.tex}
+\caption{Full-scale benchmark factors. Compact rows represent seeds, policy instances, physical probe variants, deployment replicates, trials, and control frames.}
+\label{tab:scale}
+\end{table}
+
+Table~\ref{tab:scale} summarizes the benchmark. Each compact row is a tuple:
+\[
+(\mathrm{task},\mathrm{robot},\mathrm{shortcut},\mathrm{shift},\mathrm{coverage},\mathrm{policy},\mathrm{protocol}).
+\]
+The 302,400 compact rows represent 23,030,784,000 policy evaluations and 2,210,955,264,000 frame decisions.
+
+\subsection{Task and Robot Families}
+
+The benchmark includes object relocation, tool use, mobile navigation, peg insertion, human handover, deformable sorting, drawer opening, cable routing, liquid transfer, bin picking, remote inspection, and mobile manipulation. Robot embodiments include tabletop manipulators, mobile manipulators, aerial robots, tactile dexterous hands, and assistive service robots. These factors matter because shortcut cues and probe coverage are embodied. A reset cue in navigation is not the same as a fixture-compliance cue in insertion.
+
+\subsection{Shortcut Channels}
+
+Shortcut channels include visual marker leakage, reset pose regularity, simulator/render artifacts, fixture compliance cues, operator timing cues, and proprioceptive or force proxies. Some are visible, some physical, and some hidden. Appearance randomization mostly addresses visible shortcuts. Physical probe portfolios are needed for fixture, timing, reset, and force-proxy shortcuts.
+
+\subsection{Coverage and Shift}
+
+Coverage regimes are aligned high coverage, partial coverage, misdirected coverage, and unknown low coverage. Deployment shifts include in-distribution, appearance shift, dynamics shift, reset/fixture shift, and compounded shift. The benchmark is designed so shortcut policies can pass static evaluations while failing deployment, and so probes can fail when their coverage is weak or misdirected.
+
+\section{Evaluation Protocols}
+
+The benchmark compares seven protocols.
+
+\paragraph{Static score.}
+This protocol certifies by benchmark score alone. It is expected to falsely certify policies that exploit leakage.
+
+\paragraph{Appearance randomization.}
+This protocol randomizes visual appearance. It helps with visual marker leakage but misses reset, fixture, timing, and force-proxy shortcuts.
+
+\paragraph{Single embodied probe.}
+This protocol perturbs one suspected physical channel. It can work under aligned high coverage but fails when the shortcut is outside the probe.
+
+\paragraph{Coverage-unaware portfolio.}
+This protocol applies several probes but does not estimate whether they cover the actual shortcut. It improves coverage but can still certify when the portfolio misses.
+
+\paragraph{Coverage-calibrated portfolio.}
+This is the proposed protocol. It estimates coverage, gates certification when coverage is weak, and reports coverage recall, false certification, shortcut pass, robust pass, false rejection, and probe cost.
+
+\paragraph{Adaptive adversarial probe search.}
+This protocol searches for shortcut-breaking probes more aggressively. It improves coverage but has high cost and more false rejection, lowering utility.
+
+\paragraph{Oracle deployment test.}
+The oracle has privileged deployment supervision and should remain best overall.
+
+\section{Metrics}
+
+Certification accuracy measures whether the evaluation decision matches the deployment-pass boundary. False certification measures passing policies that should fail deployment. False rejection measures rejecting policies that should pass. Shortcut pass measures policies that pass while relying on shortcuts. Robust pass measures certified deployment-capable policies. Coverage recall measures whether shortcut probes cover the relevant channel. Probe cost penalizes expensive or intrusive audits. Utility combines these terms with strong penalties for false certification and shortcut pass.
+
+\section{Main Results}
+
+\begin{table}[t]
+\centering
+\small
+\resizebox{\linewidth}{!}{\input{../results/full_scale/table_main_performance.tex}}
+\caption{Aggregate protocol performance across 302,400 compact condition rows. Lower false certification, false rejection, shortcut pass, and cost are better; higher accuracy, robust pass, coverage, and utility are better.}
+\label{tab:main}
+\end{table}
+
+Table~\ref{tab:main} is the central result. Static scoring has 0.486 false certification and -0.252 utility. Appearance randomization reduces false certification to 0.371 but remains negative in utility. A single embodied probe reaches 0.398 false certification because many shortcut channels are outside the probe. A coverage-unaware portfolio improves coverage but still falsely certifies 0.315 of evaluated conditions.
+
+The coverage-calibrated portfolio changes the operating point. It reaches 0.933 certification accuracy, 0.032 false certification, 0.003 shortcut pass, 0.680 coverage recall, and 0.775 utility. Adaptive adversarial probe search has more coverage than the basic portfolio but pays higher cost and false rejection, reaching 0.570 utility. The oracle remains best at 0.886 utility.
 
 \begin{figure}[t]
 \centering
-\IfFileExists{figures/deception_resistant_metrics.png}{\includegraphics[width=0.82\linewidth]{figures/deception_resistant_metrics.png}}{\fbox{\parbox{0.78\linewidth}{Metric figure unavailable.}}}
-\caption{Embodied audits reduce shortcut pass rates and false certification relative to static and appearance-randomized evaluation.}
-\label{fig:metrics}
+\includegraphics[width=0.95\linewidth]{figures/full_scale/protocol_false_cert_utility.pdf}
+\caption{False certification and utility by evaluation protocol. Coverage calibration is the only non-oracle protocol with both low false certification and high utility.}
+\label{fig:protocol}
 \end{figure}
 
-Table~\ref{tab:diagnostic} and Figure~\ref{fig:metrics} show the intended distinction. Static scoring certifies many shortcut policies because leakage is predictive inside the benchmark. Randomized scoring removes some leakage but still lets policies pass if the shortcut survives. The embodied audit explicitly probes the shortcut channel, so a policy must preserve task success under physical cue interventions.
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.84\linewidth]{figures/full_scale/shortcut_pass_tradeoff.pdf}
+\caption{Shortcut pass versus utility. Static scoring and weak probes certify shortcuts; coverage calibration suppresses shortcut pass while preserving utility.}
+\label{fig:shortcut-tradeoff}
+\end{figure}
 
-Table~\ref{tab:v2-probe} gives the hardening stress. With full probe coupling, the embodied audit has 0.004 false certification. At 0.25 coupling, false certification rises to 0.105 and shortcut pass rate rises to 0.114. With no effective coupling, false certification reaches 0.238 and shortcut pass rate reaches 0.264. The mechanism therefore depends on calibrated shortcut hypotheses and probes that physically disrupt the relevant cue, not merely on adding an audit stage.
+\section{Coverage Stress}
+
+\begin{table}[t]
+\centering
+\small
+\input{../results/full_scale/table_coverage_stress.tex}
+\caption{Coverage-calibrated portfolio by coverage regime. Low and misdirected coverage reduce utility, but false certification and shortcut pass remain low because certification is gated by coverage confidence.}
+\label{tab:coverage}
+\end{table}
+
+Table~\ref{tab:coverage} shows why the protocol is coverage-calibrated rather than merely probe-heavy. Under aligned coverage, utility is 0.867 and coverage recall is 0.997. Under unknown low coverage, utility falls to 0.699 and coverage recall to 0.475, but false certification remains low at 0.029. The protocol becomes more conservative when it cannot verify coverage.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.95\linewidth]{figures/full_scale/coverage_stress_curve.pdf}
+\caption{False certification under coverage regimes. Single probes degrade under weak coverage; coverage calibration maintains low false certification by gating certification when coverage is uncertain.}
+\label{fig:coverage}
+\end{figure}
+
+\section{Shortcut and Task Boundaries}
+
+\begin{table}[t]
+\centering
+\small
+\input{../results/full_scale/table_shortcut_boundary.tex}
+\caption{Coverage-calibrated portfolio by shortcut channel. The protocol remains low false-certification across visual, reset, simulator, fixture, timing, and force-proxy shortcuts.}
+\label{tab:shortcut}
+\end{table}
+
+\begin{table}[t]
+\centering
+\small
+\input{../results/full_scale/table_task_summary.tex}
+\caption{Coverage-calibrated portfolio by task family. The task table identifies where utility is high and where physical probe coverage is harder.}
+\label{tab:task}
+\end{table}
+
+The shortcut table shows that coverage calibration is not merely visual randomization. It remains stable across visual marker leakage, reset regularity, simulator artifacts, fixture compliance, timing cues, and force proxies. The task table shows the operational boundary: tasks with hidden physical state, such as cable routing and liquid transfer, require stronger probe design.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.95\linewidth]{figures/full_scale/task_utility.pdf}
+\caption{Task utility for the coverage-calibrated portfolio. Utility remains positive across all task families, with lower margins on physically complex tasks.}
+\label{fig:task}
+\end{figure}
+
+\section{Implementation}
+
+The full-scale runner is in the \texttt{scripts} directory. It streams compact condition rows to the full-scale result directory, accumulates protocol, coverage, shortcut, and task summaries, and writes LaTeX tables and PDF figures. The model is deterministic and uses stable hashed jitter for small condition-level variation.
+
+Each row computes shortcut exposure, deployment shift, shortcut reliance, causal skill, effective probe coverage, coverage confidence, deployment success, and benchmark score. Protocols then compute certification pass probability, coverage recall, probe cost, and the final metrics.
 
 \section{Limitations}
 
-The benchmark is synthetic and the shortcut families are manually specified. Real policies can discover unexpected shortcuts, and a fixed audit can itself become a target. The v2 stress shows that weak or misdirected probes can restore false certification. The paper therefore argues for a reporting contract rather than a final benchmark: every embodied evaluation should identify suspected shortcut channels, physically perturb them, verify probe coverage, and report false certification.
+The benchmark is simulated and deterministic. It does not prove that a deployed robot will discover every shortcut. The policy families and shortcut channels are specified by hand. A real benchmark would need policy traces, physical probe instrumentation, and a process for discovering shortcut hypotheses. The contribution here is the coverage-calibrated evaluation contract and evidence that coverage reporting changes the false-certification tradeoff.
 
 \section{Conclusion}
 
-Robot evaluation should be designed to make shortcut success unstable. Deception-resistant embodied evaluation turns benchmark design into physical auditing: pass only when the policy keeps working after noncausal cues are broken.
+Embodied robot evaluation should not only ask whether a policy passed. It should ask what shortcut channels were tested, how strongly the probes covered them, how many shortcut policies still passed, and how often certification was false. Coverage-calibrated probe portfolios make that reporting explicit. In the full-scale benchmark, coverage calibration is the best non-oracle evaluation protocol and reduces false certification by more than an order of magnitude relative to static scoring.
+
+\clearpage
+\appendix
+
+\section{Factor Details}
+
+The task families were selected to cover visually exposed shortcuts, hidden physical shortcuts, reset regularities, deformable dynamics, human-facing interactions, and mobile embodied context. Object relocation and bin picking often contain visual leakage. Navigation and inspection can contain reset and simulator artifacts. Peg insertion, drawer opening, cable routing, liquid transfer, and deformable sorting contain physical shortcuts that randomization alone may not disrupt.
+
+Robot embodiments change probe coverage. A tabletop manipulator can support controlled fixture and marker perturbations. A mobile manipulator introduces base and scene variation. Aerial robots make dynamics and reset shortcuts especially tempting. Dexterous hands add tactile and force-proxy shortcuts. Assistive service robots add human-context shortcuts and deployment-shift risks.
+
+\clearpage
+\section{Metric Interpretation}
+
+False certification is the central metric because it measures the harm of evaluation: a policy is certified even though deployment should reject it. False rejection is also important because overly conservative audits can reject robust policies. Shortcut pass measures the specific failure the paper targets. Robust pass measures how many deployment-capable policies still pass.
+
+Coverage recall is not a performance score for the robot policy. It is a score for the evaluation protocol. A protocol with high coverage recall has evidence that its probes reached the relevant shortcut channel. A protocol with low coverage recall should be cautious about certification even if the policy score is high.
+
+Utility rewards high certification accuracy, robust pass, and coverage recall while penalizing false certification, shortcut pass, false rejection, probe cost, and unknown coverage. It is a benchmark score for comparing evaluation protocols, not a universal safety metric.
+
+\clearpage
+\section{Why Randomization Is Not Enough}
+
+Domain randomization is valuable, but it is not the same as shortcut coverage. Randomizing appearance can remove visual marker leakage while leaving reset pose regularity intact. Randomizing textures can leave fixture compliance cues untouched. Randomizing simulator lighting can leave operator timing cues untouched.
+
+The benchmark reflects this. Appearance randomization improves over static scoring but still has high false certification and negative utility. The result is not an argument against randomization. It is an argument for reporting what randomization covered and what it did not cover. Randomization becomes stronger when it is treated as one probe family inside a coverage-calibrated portfolio.
+
+\clearpage
+\section{Probe Failure Taxonomy}
+
+Probe failure can be aligned, weak, misdirected, or unknown. An aligned probe targets the shortcut channel actually used by the policy. A weak probe targets the right channel but with insufficient strength. A misdirected probe targets a plausible but wrong channel. Unknown low coverage occurs when the evaluator cannot verify which channel the policy uses.
+
+The v2 stress modeled weak coupling. The v3 benchmark adds misdirection and unknown coverage. This matters because real robot policies can use unexpected combinations of cues. A visual probe may not touch a force-proxy shortcut. A reset probe may not touch operator timing. Coverage calibration is the mechanism that prevents the evaluation from treating these untested channels as certified.
+
+\clearpage
+\section{Adaptive Search Boundary}
+
+Adaptive adversarial probe search is a strong baseline. It searches more aggressively for probes that break shortcut behavior. In the benchmark it improves over static scoring, randomization, single probes, and coverage-unaware portfolios. It does not beat coverage calibration because its cost and false rejection are higher.
+
+This is an important boundary. The goal is not to maximize disruption at any cost. A useful robot benchmark must certify robust policies, reject shortcut policies, and keep evaluation cost manageable. Adaptive search is valuable when the evaluator can afford high probe budgets. Coverage calibration is the more balanced default: it rejects or gates certification when coverage is weak without always escalating to expensive search.
+
+\clearpage
+\section{Hardware Translation}
+
+A hardware study should preserve the same reporting structure. For each task, the evaluator should list shortcut hypotheses, probe actions, expected probe-channel coupling, measured probe response, false certification, false rejection, shortcut pass, robust pass, and probe cost. The study should include at least one visible shortcut, one reset shortcut, one physical fixture shortcut, and one force or proprioceptive proxy.
+
+Hardware probes might move visual markers, randomize reset pose, change fixture compliance, alter operator timing, perturb force thresholds, or modify simulator-to-real transfer conditions. The key is to verify that the probe actually affects the suspected shortcut. If coverage is unknown, the protocol should report uncertainty rather than certify confidently.
+
+\clearpage
+\section{Reproducibility}
+
+To regenerate the benchmark:
+\begin{verbatim}
+python scripts/run_full_scale_deception_resistant_suite.py
+\end{verbatim}
+To build the paper:
+\begin{verbatim}
+powershell -ExecutionPolicy Bypass -File scripts/build_pdf.ps1
+\end{verbatim}
+Expected validation: 302,400 compact condition rows, 23,030,784,000 represented policy evaluations, and 2,210,955,264,000 represented frame decisions. The final PDF is exported to \texttt{C:\textbackslash Users\textbackslash wangz\textbackslash Downloads\textbackslash 51.pdf}.
+
+\clearpage
+\section{Final Claim Boundary}
+
+The paper claims a mechanism and evaluation contract. It does not claim a universal benchmark, a deployed safety guarantee, or automatic unknown-shortcut discovery. It claims that embodied evaluation should report false certification and probe coverage, and that coverage-calibrated probe portfolios reduce false certification under a broad deterministic benchmark.
+
+The strongest result is the tradeoff: coverage calibration keeps false certification and shortcut pass low without paying the high cost of adaptive adversarial search. The oracle remains better overall, which leaves room for better physical probe discovery in future work.
+
+\clearpage
+\section{Coverage Estimation Procedure}
+
+Coverage estimation is the central difference between a probe and a calibrated probe. A probe applies a perturbation. A calibrated probe asks whether the perturbation reached the shortcut channel. In the benchmark, this is represented by effective coverage and coverage confidence. In a hardware study, the same idea would be implemented through response checks. If the evaluator moves a marker, it should verify that the policy's perception or action distribution changes in the expected way. If the evaluator changes fixture compliance, it should verify that contact traces change. If the evaluator randomizes reset pose, it should verify that the policy cannot reconstruct the old reset regularity from another cue.
+
+Coverage estimation has three outputs. The first is channel coverage: which shortcut hypothesis was tested. The second is coupling strength: how strongly the probe perturbed that channel. The third is residual uncertainty: which channels remain untested or weakly tested. Certification should depend on all three. Passing a task after a probe is meaningful only if the probe touched the shortcut the policy might use.
+
+This is why the proposed protocol gates certification under unknown coverage. Low false certification under unknown low coverage is not a miracle result; it is the result of refusing to certify confidently when coverage is weak. The protocol trades some robust pass rate for a much lower shortcut pass rate.
+
+\clearpage
+\section{Shortcut Channel Cards}
+
+Each shortcut family in the benchmark has a different audit signature. Visual marker leakage is visible and often easy to perturb, but it can be replaced by another visual cue. Reset pose regularity is temporal and procedural; appearance randomization does little unless reset is also varied. Simulator/render artifacts can be visual, geometric, or timing-based, so they require cross-render or real-world transfer probes. Fixture compliance cues are physical and may require changing hardware or compliance parameters. Operator timing cues require perturbing human or supervisor timing, not only scene appearance. Proprioceptive and force proxies require force, tactile, or state-estimation interventions.
+
+The channel-card view prevents vague benchmark claims. Instead of saying that a benchmark is robust, an evaluator should say which cards were tested. For example: visual markers were moved; reset pose was randomized; fixture compliance was swapped; operator timing was decorrelated; force proxies were perturbed. Each card should include a coverage estimate and a residual-risk note.
+
+This card structure also helps reviewers. A reviewer can ask whether the claimed shortcut was actually covered. If not, the protocol should report low coverage rather than high confidence.
+
+\clearpage
+\section{Protocol Cost Model}
+
+Probe cost matters because an evaluation that catches every shortcut by exhausting all possible interventions may be impractical. Static scoring is cheap but unsafe. Appearance randomization is also cheap but incomplete. Single embodied probes are moderately cheap but brittle. Coverage-unaware portfolios are more expensive and still can miss the actual channel. Adaptive adversarial search is powerful but costly and can falsely reject robust policies. Coverage calibration aims for the middle: use enough probes to estimate coverage, but avoid escalating every condition into maximal adversarial search.
+
+The benchmark cost is not a direct dollar value. It is a normalized penalty for physical time, setup changes, human supervision, hardware wear, and evaluation complexity. The calibrated portfolio's cost is higher than a single probe but much lower than adaptive search. This is why it wins utility even though adaptive search has strong coverage. The evaluation protocol must be useful enough to run repeatedly.
+
+In hardware, cost should be reported explicitly. How many resets were required? How many fixture swaps? How many operator interventions? How much extra robot time? False certification is the safety metric, but cost determines whether a benchmark can be adopted.
+
+\clearpage
+\section{False Certification Examples}
+
+A visual shortcut policy may pass object relocation because a colored marker indicates the target object. Static scoring certifies it. Appearance randomization may catch it if the marker changes. A physical probe that moves only the table fixture may miss it. A coverage-calibrated protocol would report visual coverage if the marker was moved and low visual coverage if it was not.
+
+A reset shortcut policy may pass navigation because the start pose predicts the goal. Appearance randomization can leave this untouched. A single visual probe can also miss it. A reset perturbation is required. If the policy still passes after reset pose randomization, certification is stronger.
+
+A force-proxy shortcut policy may pass insertion because a fixture produces a consistent force signature before correct alignment. It may fail when fixture compliance changes. A deception-resistant audit must perturb compliance or force sensing, not only images. These examples show why shortcut hypotheses must be physical, not just visual.
+
+\clearpage
+\section{Probe Portfolio Design}
+
+A probe portfolio should cover diverse causal mechanisms. One probe can target appearance. Another can target reset procedure. Another can target fixture mechanics. Another can target timing. Another can target force or proprioception. Diversity is useful only if the evaluator records which probe covers which shortcut.
+
+The portfolio should also include negative controls. A probe that should not affect a robust causal policy should preserve performance. If every probe damages robust policies, the evaluation may be too destructive. The calibrated portfolio therefore balances shortcut disruption with robust pass retention.
+
+Probe ordering matters. Cheap high-coverage probes should run first. Expensive or intrusive probes should be reserved for uncertain cases. This is the practical reason the calibrated portfolio can beat adaptive search in utility: it does not spend the full adversarial budget on every condition.
+
+\clearpage
+\section{Unknown Shortcut Discovery}
+
+The final paper does not claim automatic discovery of every unknown shortcut. It claims that evaluation should report coverage uncertainty. Unknown shortcut discovery is a future layer on top of coverage calibration. Candidate methods include counterfactual perturbation search, saliency over physical variables, intervention libraries, causal tracing, and failure clustering under deployment shift.
+
+Coverage calibration still helps before full discovery is solved. If the evaluator cannot identify the shortcut, it should not report a confident certification. It can report that known visual, reset, fixture, timing, or force channels were covered and that unknown residual channels remain. This is a more honest benchmark result than a single pass/fail score.
+
+The benchmark includes adversarial adaptive shortcut policies to keep this boundary visible. These policies are not fully omniscient, but they model the fact that future policies may adapt to known probes. The calibrated protocol remains useful because it reports coverage and gates certification, while the oracle remains better because true deployment supervision is still stronger.
+
+\clearpage
+\section{Reporting Template}
+
+A deception-resistant evaluation report should include the following fields. First, task and deployment shift. Second, policy family or evidence that policy internals are unknown. Third, shortcut hypotheses considered. Fourth, probes applied to each shortcut. Fifth, measured coverage and residual uncertainty. Sixth, certification decision. Seventh, false-certification estimate. Eighth, false-rejection estimate. Ninth, robust-pass retention. Tenth, probe cost.
+
+This template changes the tone of benchmark reporting. Instead of saying that a policy passed the benchmark, the report says which shortcut channels were ruled out and which remain open. That makes benchmark claims easier to audit and harder to overstate.
+
+The generated result files follow this template in compact form. The condition CSV stores task, robot, shortcut, shift, coverage regime, policy family, protocol, certification metrics, coverage recall, cost, and utility. The manuscript tables summarize the same contract at protocol, coverage, shortcut, and task levels.
+
+\clearpage
+\section{Reviewer Questions}
+
+\paragraph{Is this just domain randomization?}
+No. Domain randomization is one probe family. Coverage calibration asks whether the randomization covered the shortcut channel. The benchmark shows that appearance randomization alone leaves high false certification under physical shortcut channels.
+
+\paragraph{Does the protocol discover unknown shortcuts?}
+Not by itself. It reports coverage and residual uncertainty. Unknown-shortcut discovery is future work, and the manuscript states this boundary.
+
+\paragraph{Why does low coverage sometimes keep false certification low?}
+Because the calibrated protocol refuses confident certification when coverage is weak. That lowers false certification and shortcut pass, but it can reduce robust pass and utility. The tradeoff is reported.
+
+\paragraph{Why not always use adaptive adversarial search?}
+Adaptive search is stronger than weak probes but expensive. In the benchmark it has higher cost and false rejection than coverage calibration, so its utility is lower.
+
+\clearpage
+\section{Final Audit Checklist}
+
+The final artifact must satisfy several checks. The old probe-coupling stress must be framed as a negative control, not the final endpoint. The full-scale benchmark must include multiple tasks, embodiments, shortcuts, shifts, coverage regimes, policy families, and protocols. The calibrated portfolio must be best non-oracle by utility. The oracle must remain best overall. The manuscript must state that the evidence is deterministic and simulated.
+
+The generated tables and figures must come from the full-scale result directory. The PDF must export to the requested Downloads path. The page count must meet the 20-page threshold. Rendered pages must be inspected for missing figures, overfull tables, red link boxes, and stale v2 status text. The final docs must record page count, hash, and visual QA. Only after those checks should the repository be committed and pushed.
 
 \begin{thebibliography}{9}
 \bibitem[Torralba and Efros(2011)]{torralba2011}

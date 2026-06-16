@@ -2,28 +2,30 @@
 
 ## What Survives
 
-Deception-resistant embodied evaluation is useful as a diagnostic contract: the evaluator should state suspected shortcut channels, perturb them physically, verify that the probe couples to the shortcut, and report false certification.
+Deception-resistant embodied evaluation is strongest when framed as coverage-calibrated certification. The evaluator should state suspected shortcut channels, perturb them physically, estimate whether probes cover those channels, and gate certification when coverage is weak.
 
-## What V2 Breaks
+## What V2 Exposed
 
-The embodied audit is not automatically robust. In the v2 probe-coverage stress:
+The fixed embodied audit was not automatically robust. In the v2 probe-coverage stress, false certification rose when probe coupling weakened. That result is now used as a negative control motivating coverage calibration, not as the final endpoint.
 
-- Probe coupling 1.00: false certification 0.004, shortcut pass 0.003.
-- Probe coupling 0.25: false certification 0.105, shortcut pass 0.114.
-- Probe coupling 0.00: false certification 0.238, shortcut pass 0.264.
+## What V3 Adds
 
-This means the audit is only as good as the shortcut hypothesis and intervention coverage.
+- A 302400-row full-scale deterministic suite.
+- Twelve task families, five robot embodiments, six shortcut channels, five deployment shifts, four coverage regimes, six policy families, and seven protocols.
+- Protocol summaries that include false certification, false rejection, shortcut pass, robust pass, coverage recall, probe cost, and utility.
+- Coverage-regime evidence showing that the calibrated portfolio remains the best non-oracle protocol under aligned, partial, misdirected, and unknown coverage.
+- A 25-page anonymous review manuscript with generated tables and figures.
 
-## Workshop-Safe Framing
+## Supported Framing
 
-- Present static scoring and randomized scoring as failure cases.
-- Present embodied audit as a diagnostic that requires calibrated probes.
-- Emphasize false certification and false rejection reporting.
-- Treat unknown shortcut discovery and real-robot validation as future work.
+- Present static scoring and appearance randomization as high false-certification baselines.
+- Present single probes and coverage-unaware portfolios as fragile under weak coverage.
+- Present coverage-calibrated portfolios as a certification discipline, not as magic shortcut discovery.
+- Emphasize that oracle deployment remains the upper bound.
 
 ## Unsafe Framing
 
-- "This benchmark is deception-proof."
-- "The audit catches arbitrary shortcut policies."
-- "The result proves real-world robot evaluation safety."
+- "This proves real-world robot safety."
+- "The benchmark discovers every unknown shortcut."
 - "Domain randomization is obsolete."
+- "The calibrated portfolio beats oracle deployment."

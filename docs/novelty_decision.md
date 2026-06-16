@@ -1,15 +1,17 @@
 # Novelty Decision
 
-Decision after v2 hardening: workshop-only.
+Decision after v3 hardening: final full-scale submission artifact.
 
-Reason: The deception-resistant evaluation framing is useful, but the current evidence is a synthetic diagnostic with manually specified shortcuts and probe channels. V2 hardening shows the result depends strongly on probe coverage.
+Reason: The earlier diagnostic has been expanded into a broad deterministic benchmark with explicit coverage calibration, multiple protocol baselines, coverage-regime stress, shortcut-channel stress, task-family summaries, generated tables, generated figures, and a 25-page manuscript. The claim is now substantial enough for submission when framed as a simulated coverage-calibrated evaluation benchmark rather than a real-robot safety proof.
 
 ## Surviving Contribution
 
-- Measure false certification for embodied robot evaluations.
+- Measure false certification in embodied robot evaluation.
 - Treat suspected shortcut channels as physical variables that must be perturbed.
-- Report probe coverage as part of an evaluation contract.
+- Estimate and report probe coverage.
+- Gate certification when coverage is weak or unknown.
+- Compare calibrated portfolios against static scoring, appearance randomization, single probes, coverage-unaware portfolios, adaptive search, and oracle deployment.
 
 ## Novelty Boundary
 
-The paper is a mechanism and reporting-contract note. It is not yet a universal benchmark, an unknown-shortcut discovery method, or a real-robot safety validation.
+The paper contributes a benchmark, metric contract, and calibration mechanism for embodied evaluation. It is not a real-robot deployment guarantee and does not solve open-ended shortcut discovery.
