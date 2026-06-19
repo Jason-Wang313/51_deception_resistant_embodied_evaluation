@@ -39,9 +39,11 @@ The final paper is ready as a v3 full-scale submission artifact. It does not cla
 
 - Canonical PDF: `C:/Users/wangz/Downloads/51.pdf`
 - Pages: 25.
-- File size: 276127 bytes.
-- SHA256: `120D7C07C1868E2BB24B4E9060E09688D4D13746A664A5E5C9DDBCAE08C6F02B`.
+- File size: 276107 bytes.
+- SHA256: `40CF72DBD105131B73BC4A51CB672064C8FE8478A90CF3600A8209737A4964EC`.
 - Visual QA pages: 1, 6, 8, 21, and 25.
+- VLA-style highlight hardening: 4 red link boxes on pages 2, 3, 4, and 5, all with border `(0, 0, 1)`.
+- VLA link-box visual QA pages: 2, 3, 4, and 5.
 - Local tracked/generated PDF policy: `paper/main.pdf` is ignored and removed after build.
 - Desktop copy: absent.
 - Build script: `scripts/build_pdf.ps1`

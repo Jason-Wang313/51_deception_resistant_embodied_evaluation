@@ -31,9 +31,10 @@ Scale: 302,400 compact condition rows representing 23,030,784,000 policy evaluat
 The canonical built PDF is `C:/Users/wangz/Downloads/51.pdf`.
 
 - Pages: 25.
-- Size: 276,127 bytes.
-- SHA256: `120D7C07C1868E2BB24B4E9060E09688D4D13746A664A5E5C9DDBCAE08C6F02B`.
-- Visual QA: rendered pages 1, 6, 8, 21, and 25.
+- Size: 276,107 bytes.
+- SHA256: `40CF72DBD105131B73BC4A51CB672064C8FE8478A90CF3600A8209737A4964EC`.
+- Visual QA: rendered pages 1, 6, 8, 21, and 25; VLA link-box pages 2, 3, 4, and 5.
+- VLA-style highlight hardening: 4 red link boxes on pages 2, 3, 4, and 5, all with border `(0, 0, 1)`.
 
 Local generated PDFs are not tracked. The build script copies the generated PDF to the canonical Downloads path and removes `paper/main.pdf`.
 

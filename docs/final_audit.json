@@ -4,9 +4,15 @@
   "decision": "final_v3_full_scale_submission_artifact",
   "canonical_pdf": "C:/Users/wangz/Downloads/51.pdf",
   "pages": 25,
-  "file_size_bytes": 276127,
-  "sha256": "120D7C07C1868E2BB24B4E9060E09688D4D13746A664A5E5C9DDBCAE08C6F02B",
+  "file_size_bytes": 276107,
+  "sha256": "40CF72DBD105131B73BC4A51CB672064C8FE8478A90CF3600A8209737A4964EC",
   "visual_qa_pages": [1, 6, 8, 21, 25],
+  "vla_highlight_hardening": {
+    "link_pages": [2, 3, 4, 5],
+    "red_link_boxes": 4,
+    "border": [0, 0, 1],
+    "visual_qa_pages": [2, 3, 4, 5]
+  },
   "experiment": {
     "condition_rows": 302400,
     "represented_policy_evaluations": 23030784000,

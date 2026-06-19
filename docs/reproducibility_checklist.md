@@ -10,7 +10,8 @@
 - Build command: `powershell -ExecutionPolicy Bypass -File scripts\build_pdf.ps1`.
 - Canonical PDF: `C:/Users/wangz/Downloads/51.pdf`.
 - Canonical PDF pages: 25.
-- Canonical PDF SHA256: `120D7C07C1868E2BB24B4E9060E09688D4D13746A664A5E5C9DDBCAE08C6F02B`.
+- Canonical PDF SHA256: `40CF72DBD105131B73BC4A51CB672064C8FE8478A90CF3600A8209737A4964EC`.
 - Local generated PDF policy: `paper/main.pdf` is ignored and removed after build.
 - Desktop PDF copy: absent.
 - Visual QA pages: 1, 6, 8, 21, and 25.
+- VLA-style highlight hardening: 4 red link boxes on pages 2, 3, 4, and 5, all with border `(0, 0, 1)`.
